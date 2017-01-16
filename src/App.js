@@ -1,71 +1,26 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {addTodo, completeTodo } from './Actions';
+import TodoItem from './TodoItem';
+import {connect} from 'react-redux';
 
-var mockData = {
-  id : 1,
-  text : "todo",
-  complete : true
-}
-
-var increId = 1; // ES6 ?
-
-class TodoItem extends Component {
-  render() {
-    var item = this.props.item;
-    return(<li style={{textDecoration : item.complete ? 'line-through' : 'none'}}
-             onClick={()=>this.props.toggleComplete(item.id)}>{item.text}</li>)
-  }
-}
-
-class App extends Component {
+class App extends Component { // smart component 영민한 컴포넌트
   constructor(props){
     super(props);
-    this.state = {
-        todolist : []
-    }
   }
   addItem() {
     var inputValue = this.refs.inputbox.value;
-
     if(inputValue==="") return;
+    // 로직 처리
+    this.props.dispatch(addTodo(inputValue)); //
 
-    this.setState(prevState => {
-      prevState.todolist.push(
-        {
-          id : increId++,
-          text : inputValue,
-          complete : false
-        }
-      )
-      return prevState;
-    });
 
     this.refs.inputbox.value = "";
   }
 
-  toggleComplete(id) {
-
-      this.setState(prevState => {
-          prevState.todolist
-                .filter(item => item.id === id)
-                .map(item => item.complete = !item.complete);
-
-          return prevState;
-
-          // prevState.todolist.map(
-          //   item => {
-          //     if(item.id === id) {
-          //       item.complete = !item.complete
-          //     }
-          //   }
-          // )
-        }
-
-      )
-  }
-
-  render() {
+    render() {
+    console.log("this.props", this.props);
     return (
       <div className="App">
         <h1>TODO LIST</h1>
@@ -73,9 +28,9 @@ class App extends Component {
         <button onClick={this.addItem.bind(this)}>add</button>
         <ul>
           {
-            this.state.todolist.map((item, index) => {
-              return (  <TodoItem key={index} item={item}
-                  toggleComplete={this.toggleComplete.bind(this)}/> );
+            this.props.todos.map((item, index) => {
+              return (  <TodoItem key={index} item={item} dispatch={this.props.dispatch}
+                  /> );
             })
           }
         </ul>
@@ -84,4 +39,15 @@ class App extends Component {
   }
 }
 
-export default App;
+
+
+// select 라는 함수  : 어플리케이션 상태(store 안에 있는 state)하고 컴포넌트(App)이 어떤 props가 필요한지를 연결시켜주는 함수
+function select(state) {
+  return {
+    todos : state // component가 받을 props : store가 가진 state
+    // state : state.searchStore
+  }
+}
+
+// Provider : 공급 '컴포넌트 '
+export default connect(select)(App); // 함수에요. 상태값/컴포넌트를 연결
