@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {addTodo, completeTodo } from './Actions';
+import {addTodo, completeTodo, fetch } from './Actions';
 import TodoItem from './TodoItem';
 import {connect} from 'react-redux';
 
@@ -9,12 +9,14 @@ class App extends Component { // smart component 영민한 컴포넌트
   constructor(props){
     super(props);
   }
+  componentDidMount(){
+    this.props.dispatch(fetch());
+  }
   addItem() {
     var inputValue = this.refs.inputbox.value;
     if(inputValue==="") return;
     // 로직 처리
     this.props.dispatch(addTodo(inputValue)); //
-
 
     this.refs.inputbox.value = "";
   }
@@ -40,11 +42,10 @@ class App extends Component { // smart component 영민한 컴포넌트
 }
 
 
-
 // select 라는 함수  : 어플리케이션 상태(store 안에 있는 state)하고 컴포넌트(App)이 어떤 props가 필요한지를 연결시켜주는 함수
 function select(state) {
   return {
-    todos : state // component가 받을 props : store가 가진 state
+    todos : state.list || [] // component가 받을 props : store가 가진 state
     // state : state.searchStore
   }
 }
